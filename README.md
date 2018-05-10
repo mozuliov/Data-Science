@@ -1,2 +1,2 @@
-# Data-Science
-General repository for different data science projects
+# Weather Forecast
+Here we will try to predict any precipitations in the coming hour
