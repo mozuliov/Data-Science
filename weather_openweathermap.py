@@ -4,9 +4,9 @@ import datetime
 import time
 
 def Record_Curr_Weather(Latitude, Longitude):
-    api_string = 'http://api.openweathermap.org/data/2.5/weather?lat=' + str(Latitude) + '&lon=' + str(Longitude) + '&units=metric&APPID=cff8ba42de36c013f53acaa95cee63fc'
-    response = requests.get(api_string)
-    #response = requests.get('http://api.openweathermap.org/data/2.5/weather?q=Surrey,ca&units=metric&APPID=cff8ba42de36c013f53acaa95cee63fc')
+    # api_string = 'http://api.openweathermap.org/data/2.5/weather?lat=' + str(Latitude) + '&lon=' + str(Longitude) + '&units=metric&APPID=cff8ba42de36c013f53acaa95cee63fc'
+    # response = requests.get(api_string)
+    response = requests.get('http://api.openweathermap.org/data/2.5/weather?q=Richmond,ca&units=metric&APPID=cff8ba42de36c013f53acaa95cee63fc')
 
     print (response.content)
     data = response.json()
@@ -106,7 +106,7 @@ def Record_Curr_Weather(Latitude, Longitude):
                       'Rain',
                       'Snow',
                       'Visibility']
-        with open(str(datetime.date.today()) + '.csv', 'a') as f:
+        with open(str(datetime.date.today()) + '.csv', 'a', newline = '') as f:
             writer = csv.writer(f)
             writer.writerow(fieldnames)
     fields = [datestamp,
@@ -120,7 +120,7 @@ def Record_Curr_Weather(Latitude, Longitude):
               curr_rain3h,
               curr_snow3h,
               curr_visibility]
-    with open(str(datetime.date.today()) + '.csv', 'a') as f:
+    with open(str(datetime.date.today()) + '.csv', 'a', newline = '') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
@@ -130,7 +130,7 @@ def Record_Curr_Weather(Latitude, Longitude):
     print("Humidity: " + str(curr_humidity) + " %")
     print("Wind: " + str(curr_wind) + " m/s, direction: " + str(curr_wind_dir) + " gust: " + str(curr_wind_gust))
     print("Clouds: " + str(curr_clouds) + "%")
-    print("Precipitations: " + "Rain: " + str(curr_rain3h) + ", Snow: " + str(curr_snow3h))
+    print("Precipitation: " + "Rain: " + str(curr_rain3h) + ", Snow: " + str(curr_snow3h))
     print("Visibility: " + str(curr_visibility) + " m")
 
 while True:
