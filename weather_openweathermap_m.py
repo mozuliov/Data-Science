@@ -21,23 +21,26 @@ while True:
     record = []     # This list will contain data for the new line to write to csv file
     wind_dir = ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA','NA']   # In case wind direction not available we will be using most recent available data
 
-    record.append(datetime.datetime.now())  # date and time key of the record
+    record.append(datetime.datetime.now())        # date and time key of the record
+
+    record.append(datetime.datetime.now().month)  # season (month)
 
     # Write down the part of the day as one of the feature:
     #  1 for sunrise to midpoint between sunrise and sunset interval
     #  2 for interval between midpoint and sunset
     #  3 for interval between sunset and midpoint between sunset and sunrise (same day for simplification)
     #  4 for interval between midpoint between sunset and sunrise and sunrise
-    if (datetime.datetime.utcnow().timestamp() - data['list'][0]['sys']['sunset']) > 0:        # after sunset
+    if (datetime.datetime.now().timestamp() - data['list'][0]['sys']['sunset']) > 0:        # after sunset
         day_quadrant = 3
+        print ("After sunset")
     else:
-        if (datetime.datetime.utcnow().timestamp() - data['list'][0]['sys']['sunrise']) > 0:   # day
-            if (datetime.datetime.utcnow().timestamp() - (data['list'][0]['sys']['sunset'] - data['list'][0]['sys']['sunrise']) / 2 + data['list'][0]['sys']['sunrise']) > 0:
+        if (datetime.datetime.now().timestamp() - data['list'][0]['sys']['sunrise']) > 0:   # day
+            if (datetime.datetime.now().timestamp() - ((data['list'][0]['sys']['sunset'] - data['list'][0]['sys']['sunrise']) / 2 + data['list'][0]['sys']['sunrise'])) > 0:
                 day_quadrant = 2
             else:
                 day_quadrant = 1
         else:                                                                   # before sunrise
-            if (datetime.datetime.utcnow().timestamp() - (data['list'][0]['sys']['sunrise'] - data['list'][0]['sys']['sunset'] - 86400) / 2 + data['list'][0]['sys']['sunset'] + 86400) > 0:
+            if (datetime.datetime.now().timestamp() - ((data['list'][0]['sys']['sunrise'] - (data['list'][0]['sys']['sunset'] - 86400)) / 2 + (data['list'][0]['sys']['sunset'] - 86400))) > 0:
                 day_quadrant = 4
             else:
                 day_quadrant = 3
@@ -83,8 +86,11 @@ while True:
         except KeyError:
             record.append(wind_dir[city])
         else:
-            record.append(data['list'][city]['wind']['deg'])
-            wind_dir[city] = data['list'][city]['wind']['deg']
+            if data['list'][city]['wind']['deg'] == "NA":
+                record.append(wind_dir[city])
+            else:
+                record.append(data['list'][city]['wind']['deg'])
+                wind_dir[city] = data['list'][city]['wind']['deg']
 
         # Wind gust considered here as an addition m/sec to wind speed
         try:
@@ -118,39 +124,31 @@ while True:
         else:
              record.append(data['list'][city]['snow']['3h'])
 
-        # Visibility m
-        try:
-            data['list'][city]['visibility']
-        except KeyError:
-            record.append('NA')
-        else:
-            record.append(data['list'][city]['visibility'])
-
     try:
         with open(str(datetime.date.today()) + '.csv', 'r') as f:
             with open(str(datetime.date.today()) + '.csv', 'a', newline = '') as f:
                 writer = csv.writer(f)
                 writer.writerow(record)
     except IOError as x:
-        fieldnames = ['Datestamp', 'Day_Quadrant',
+        fieldnames = ['Datestamp', 'Month', 'Day_Quadrant',
                       '0_Temp', '0_Pressure', '0_Humidity', '0_Wind_Speed', '0_Wind_Dir', '0_Wind_Gust', '0_Clouds',
-                      '0_Rain', '0_Snow', '0_Visibility',
+                      '0_Rain', '0_Snow',
                       '1_Temp', '1_Pressure', '1_Humidity', '1_Wind_Speed', '1_Wind_Dir', '1_Wind_Gust', '1_Clouds',
-                      '1_Rain', '1_Snow', '1_Visibility',
+                      '1_Rain', '1_Snow',
                       '2_Temp', '2_Pressure', '2_Humidity', '2_Wind_Speed', '2_Wind_Dir', '2_Wind_Gust', '2_Clouds',
-                      '2_Rain', '2_Snow', '2_Visibility',
+                      '2_Rain', '2_Snow',
                       '3_Temp', '3_Pressure', '3_Humidity', '3_Wind_Speed', '3_Wind_Dir', '3_Wind_Gust', '3_Clouds',
-                      '3_Rain', '3_Snow', '3_Visibility',
+                      '3_Rain', '3_Snow',
                       '4_Temp', '4_Pressure', '4_Humidity', '4_Wind_Speed', '4_Wind_Dir', '4_Wind_Gust', '4_Clouds',
-                      '4_Rain', '4_Snow', '4_Visibility',
+                      '4_Rain', '4_Snow',
                       '5_Temp', '5_Pressure', '5_Humidity', '5_Wind_Speed', '5_Wind_Dir', '5_Wind_Gust', '5_Clouds',
-                      '5_Rain', '5_Snow', '5_Visibility',
+                      '5_Rain', '5_Snow',
                       '6_Temp', '6_Pressure', '6_Humidity', '6_Wind_Speed', '6_Wind_Dir', '6_Wind_Gust', '6_Clouds',
-                      '6_Rain', '6_Snow', '6_Visibility',
+                      '6_Rain', '6_Snow',
                       '7_Temp', '7_Pressure', '7_Humidity', '7_Wind_Speed', '7_Wind_Dir', '7_Wind_Gust', '7_Clouds',
-                      '7_Rain', '7_Snow', '7_Visibility',
+                      '7_Rain', '7_Snow',
                       '8_Temp', '8_Pressure', '8_Humidity', '8_Wind_Speed', '8_Wind_Dir', '8_Wind_Gust', '8_Clouds',
-                      '8_Rain', '8_Snow', '8_Visibility']
+                      '8_Rain', '8_Snow']
 
         with open(str(datetime.date.today()) + '.csv', 'a', newline = '') as f:
             writer = csv.writer(f)
